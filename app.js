@@ -1,4 +1,9 @@
 if ('serviceWorker' in navigator) {
+    // Registro del Service Worker con ruta relativa (GitHub Pages)
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => console.log('[SW] Registrado con scope:', reg.scope))
+      .catch((error) => console.error('[SW] Error al registrar:', error));
+
     navigator.serviceWorker.addEventListener('message', (event) => {
       if (event.data && event.data.tipo === 'OUTBOX_SINCRONIZADO') {
         console.log('[UI] Confirmación recibida del Service Worker. Actualizando bandeja...');
@@ -99,6 +104,9 @@ if ('serviceWorker' in navigator) {
       sincronizarPendientesFallback();
     }
   });
+
+  window.addEventListener('offline', actualizarIndicadorRed);
+
   function renderizarColaOutbox() {
     return obtenerTodosLosRegistros().then(function (registros) {
       var lista = document.getElementById('lista-outbox');

@@ -2,7 +2,7 @@
 // Importar IndexedDB en el contexto del Service Worker
 importScripts('./db-helper.js');
 
-const CACHE_STATIC_NAME = 'static-outbox-v3';
+const CACHE_STATIC_NAME = 'static-outbox-v4';
 
 const STATIC_FILES = [
   './',
@@ -10,7 +10,9 @@ const STATIC_FILES = [
   './styles.css',
   './db-helper.js',
   './app.js',
-  './manifest.json'
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // INSTALACIÓN
