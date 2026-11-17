@@ -1,4 +1,6 @@
+
 const CACHE_STATIC_NAME = 'static-outbox-v2';
+
 const STATIC_FILES = [
   './',
   './index.html',
@@ -8,13 +10,18 @@ const STATIC_FILES = [
   './manifest.json'
 ];
 
+// INSTALACIÓN: guardar los archivos del App Shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_STATIC_NAME)
-      .then((cache) => cache.addAll(STATIC_FILES))
+      .then((cache) => {
+        return cache.addAll(STATIC_FILES);
+      })
+      .then(() => self.skipWaiting())
   );
 });
 
+// ACTIVACIÓN: eliminar cachés anteriores
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -23,15 +30,28 @@ self.addEventListener('activate', (event) => {
           .filter((nombre) => nombre !== CACHE_STATIC_NAME)
           .map((nombre) => caches.delete(nombre))
       ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Solo GET desde caché; los POST no se interceptan
+// FETCH: estrategia Cache First para peticiones GET
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+
+  // No interceptar POST ni otros métodos
+  if (event.request.method !== 'GET') {
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request)
-      .then((respuesta) => respuesta || fetch(event.request))
+      .then((respuesta) => {
+        // Si existe en caché, devolverla
+        if (respuesta) {
+          return respuesta;
+        }
+
+        // Si no existe, intentar obtenerla de Internet
+        return fetch(event.request);
+      })
   );
 });

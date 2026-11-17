@@ -2,7 +2,8 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js');
   }
   
-  function procesarEnvioReporte(datosFormulario) {
+  
+function procesarEnvioReporte(datosFormulario) {
     const endpoint = 'https://jsonplaceholder.typicode.com/posts';
   
     return fetch(endpoint, {
@@ -11,30 +12,34 @@ if ('serviceWorker' in navigator) {
       body: JSON.stringify(datosFormulario)
     })
       .then((respuesta) => {
-        if (!respuesta.ok) throw new Error('Error HTTP del servidor');
+        if (!respuesta.ok) {
+          throw new Error('Error HTTP del servidor');
+        }
         return respuesta.json();
       })
-      .then(
-        // Rama de éxito: solo se ejecuta si el envío en vivo funcionó
-        () => {
-          return guardarRegistro({
-            ...datosFormulario,
-            estado: 'sincronizado',
-            fechaCreacion: Date.now()
-          });
-        },
-        // Rama de fallo: solo se ejecuta si la cadena anterior fue rechazada
-        () => {
-          console.warn('[Outbox] Sin conexión. Encolando transacción localmente...');
-          return guardarRegistro({
-            ...datosFormulario,
-            estado: 'pendiente',
-            fechaCreacion: Date.now()
-          });
-        }
-      )
-      .then(() => renderizarColaOutbox());
-  }  
+      .then(() => {
+        // Envío exitoso: guardar como sincronizado
+        return guardarRegistro({
+          ...datosFormulario,
+          estado: 'sincronizado',
+          fechaCreacion: Date.now()
+        });
+      })
+      .catch(() => {
+        // Fallo de red: guardar como pendiente
+        console.warn('[Outbox] Sin conexión. Encolando transacción localmente...');
+  
+        return guardarRegistro({
+          ...datosFormulario,
+          estado: 'pendiente',
+          fechaCreacion: Date.now()
+        });
+      })
+      .then(() => {
+        return renderizarColaOutbox();
+      });
+  }
+   
 
   function sincronizarPendientes(){
     console.log('[Outbox] Conexión detectada. Buscando registros pendientes...');
