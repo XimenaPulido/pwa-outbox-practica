@@ -1,0 +1,9 @@
+{
+    "name": "PWA Outbox - Sincronización Offline",
+    "short_name": "Outbox",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#1f6feb"
+  }
+  
