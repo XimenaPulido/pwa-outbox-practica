@@ -76,10 +76,7 @@ if ('serviceWorker' in navigator) {
   // Escuchar el regreso de la conectividad
   window.addEventListener('online', () => {
     actualizarIndicadorRed();
-    // Fallback: solo si el navegador no soporta Background Sync
-    if (!('SyncManager' in window)) {
-      sincronizarPendientes();
-    }
+    sincronizarPendientes();
   });
 
   window.addEventListener('offline', actualizarIndicadorRed);
